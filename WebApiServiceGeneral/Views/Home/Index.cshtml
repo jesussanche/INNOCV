@@ -1,0 +1,128 @@
+﻿<div class="jumbotron">
+    <h1>Pruebas Web API</h1>
+</div>
+<div>
+    <h2>All Users</h2>
+    <ul id="users" />
+</div>
+<div>
+    <h2>Search by Id and create user</h2>
+    <input type="text" id="Id" size="5" />
+    <input type="button" value="Search" onclick="find();" />
+    <input type="button" value="Add" onclick="create();" />
+    <input type="button" value="Update" onclick="update();" />
+    <input type="button" value="Delete" onclick="remove();" />
+    <p id="user" />
+</div>
+
+<script src="http://ajax.aspnetcdn.com/ajax/jQuery/jquery-2.0.3.min.js"></script>
+<script>
+    var uri = 'api/User';
+
+    $(document).ready(function () {
+      // Send an AJAX request
+      $.getJSON(uri)
+          .done(function (data) {
+            // On success, 'data' contains a list of users.
+            $.each(data, function (key, item) {
+              // Add a list item for the user.
+              $('<li>', { text: formatItem(item) }).appendTo($('#users'));
+            });
+          });
+    });
+
+    function formatItem(item) {
+
+        if (item == null)
+        {
+            alert('No find the data')
+            return null;
+        }
+        {
+            return item.Name + ': $' + item.Birthdate;
+        }
+        
+    }
+
+    function find() {
+      var id = $('#Id').val();
+      $.getJSON(uri + '/' + id)
+          .done(function (data) {
+            $('#user').text(formatItem(data));
+          })
+          .fail(function (jqXHR, textStatus, err) {
+            $('#user').text('Error: ' + err);
+          });
+    }
+
+     
+    function create() {
+        var id = $('#Id').val();
+        var user = $('#user').text();
+        //$.post(uri, user.serialize(), alert("wait to process"));
+        $.ajax({
+            url: uri + '/Create',
+            type: 'POST',
+            contentType: "application/json; charset=utf-8",
+            data: user,
+            success: function (results) {
+                //$.getJSON(uri + '/' + id, LoadTrucks);
+                searchAll();
+                alert('Elemento con identificador ' + results + ' ' + 'Inserted !');
+            }
+            
+        })
+    }
+
+    function update() {
+        var id = $('#Id').val();
+        var user = $('#user').text();
+
+        //var user = $('#user');
+        //$.post(uri + '/' + id, user.serialize(), alert('success'));
+        $.ajax({
+            url: uri + '/' + id,
+            type: 'PUT',
+            contentType: "application/json; charset=utf-8",
+            data: user,
+            success: function (results) {
+                //$.getJSON(uri + '/' + id, LoadTrucks);
+                searchAll();
+                alert('Elemento con identificador ' + results + ' ' + 'Updated !');
+            }
+        })
+    }
+
+    function remove() {
+        var id = $('#Id').val();
+
+        $.ajax({
+            url: uri + '/' + id,
+            type: 'DELETE',
+            contentType: "application/json; charset=utf-8",
+            data: id,
+            success: function (results) {
+                //$.getJSON(uri + '/' + id, LoadTrucks);
+                searchAll();
+                alert('Elemento con identificador ' + results + ' ' + 'Deleted !');
+            }
+        })
+
+    }
+
+    function searchAll()
+    {
+         
+        $.getJSON(uri)
+         .done(function (data) {
+             // On success, 'data' contains a list of users.
+             $.each(data, function (key, item) {
+                 // Add a list item for the user.
+                 $('<li>', { text: formatItem(item) }).appendTo($('#users'));
+             });
+         });
+    }
+    
+
+</script>
+
